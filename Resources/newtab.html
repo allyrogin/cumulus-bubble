@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Cumulus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;1,600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="dusk">
+
+  <!-- shared SVG defs: referenced by every cloud graphic in the app -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="cloudHighlight" cx="32%" cy="24%" r="52%">
+        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+        <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="cloudShadow" x="-60%" y="-60%" width="220%" height="220%">
+        <feDropShadow dx="0" dy="9" stdDeviation="9" flood-color="#000000" flood-opacity="0.42"/>
+      </filter>
+      <filter id="softBlur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs>
+  </svg>
+
+  <!-- ambient sky background layer (moon, stars, distant parallax clouds), purely decorative -->
+  <div class="sky" id="sky" aria-hidden="true"></div>
+
+  <div class="app">
+
+    <!-- HUD -->
+    <header class="hud">
+      <div class="hud-brand">
+        <svg class="hud-logo" viewBox="0 0 400 260" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoGrad" gradientUnits="userSpaceOnUse" x1="110" y1="36" x2="250" y2="217">
+              <stop offset="0%" stop-color="#FFEBC2"/>
+              <stop offset="100%" stop-color="#F0B94D"/>
+            </linearGradient>
+          </defs>
+          <g filter="url(#cloudShadow)">
+            <path d="M 66 208 C 36 208 14 184 14 155 C 14 129 33 107 59 103 C 61 73 87 50 119 50 C 141 50 160 61 171 78 C 179 54 203 36 231 36 C 266 36 296 61 302 96 C 332 99 356 124 356 155 C 356 181 336 203 310 207 C 306 213 298 217 288 217 L 92 217 C 80 217 70 214 66 208 Z" fill="url(#logoGrad)" stroke="#B8842E" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M 66 208 C 36 208 14 184 14 155 C 14 129 33 107 59 103 C 61 73 87 50 119 50 C 141 50 160 61 171 78 C 179 54 203 36 231 36 C 266 36 296 61 302 96 C 332 99 356 124 356 155 C 356 181 336 203 310 207 C 306 213 298 217 288 217 L 92 217 C 80 217 70 214 66 208 Z" fill="url(#cloudHighlight)"/>
+          </g>
+        </svg>
+        <span class="hud-title">Cumulus</span>
+      </div>
+
+      <nav class="hud-tabs" role="tablist" aria-label="Views">
+        <button class="hud-tab is-active" id="tabSky" role="tab" aria-selected="true">Sky</button>
+        <button class="hud-tab" id="tabDone" role="tab" aria-selected="false">Done</button>
+      </nav>
+
+      <div class="hud-stats">
+        <div class="stat stat-streak" id="streakStat" title="Daily streak">
+          <span class="stat-icon">🔥</span>
+          <span class="stat-value" id="streakValue">0</span>
+          <span class="stat-freeze" id="streakFreeze" title="Streak freeze available — one missed day won't reset your streak">🧊</span>
+        </div>
+
+        <button class="stat stat-level" id="levelStat" title="Level & XP">
+          <span class="stat-level-badge" id="levelBadge">Lv 1</span>
+          <span class="xp-track">
+            <span class="xp-fill" id="xpFill"></span>
+          </span>
+          <span class="stat-xp-text" id="xpText">0 / 100 XP</span>
+        </button>
+
+        <button class="icon-btn" id="settingsBtn" title="Settings & Themes" aria-label="Open settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- SKY VIEW -->
+    <main class="view view-sky is-active" id="viewSky">
+
+      <div class="empty-hint" id="emptyHint" hidden>
+        <p>Your sky is empty. Tap <strong>+ New cloud</strong> to make your first category, or drop a quick thought below ↓</p>
+      </div>
+
+      <div class="cloud-garden" id="cloudGarden">
+        <!-- clouds injected by app.js: inbox cloud, category clouds, + new cloud button -->
+      </div>
+    </main>
+
+    <!-- DONE VIEW -->
+    <main class="view view-done" id="viewDone">
+      <div class="done-header">
+        <h2>Finished tasks</h2>
+        <p class="done-sub">Every check mark here earned you XP. Look at all that.</p>
+      </div>
+      <div class="done-list" id="doneList">
+        <!-- completed tasks injected by app.js, grouped by day -->
+      </div>
+      <div class="empty-hint" id="doneEmptyHint" hidden>
+        <p>Nothing finished yet. Complete a task and it'll land here.</p>
+      </div>
+    </main>
+
+    <!-- BRAIN DUMP DOCK -->
+    <form class="braindump-dock" id="braindumpForm" autocomplete="off">
+      <span class="braindump-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+      </span>
+      <input
+        type="text"
+        id="braindumpInput"
+        class="braindump-input"
+        placeholder="Dump a thought… anything, unsorted is fine"
+        maxlength="140"
+      />
+      <button type="submit" class="braindump-send" aria-label="Add to brain dump">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </form>
+
+  </div>
+
+  <!-- CLOUD DETAIL MODAL (category or inbox) -->
+  <div class="modal-overlay" id="cloudModalOverlay" hidden>
+    <div class="modal cloud-modal" role="dialog" aria-modal="true" id="cloudModal">
+      <button class="modal-close" id="cloudModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="cloud-modal-header">
+        <span class="cloud-color-dot" id="modalColorDot"></span>
+        <input type="text" class="cloud-modal-title" id="modalTitleInput" maxlength="30" />
+        <button class="icon-btn danger" id="modalDeleteCategory" title="Delete this category">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        </button>
+      </div>
+
+      <div class="task-list" id="modalTaskList"></div>
+
+      <form class="task-add-form" id="taskAddForm" autocomplete="off">
+        <input type="text" id="taskAddInput" class="task-add-input" placeholder="Add a task…" maxlength="140" />
+        <input type="date" id="taskAddDate" class="task-add-date" title="Optional due date" />
+        <button type="submit" class="task-add-btn" aria-label="Add task">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- NEW CATEGORY MODAL -->
+  <div class="modal-overlay" id="newCategoryOverlay" hidden>
+    <div class="modal small-modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="newCategoryClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <h3 class="small-modal-title">New cloud</h3>
+      <form id="newCategoryForm" autocomplete="off">
+        <input type="text" id="newCategoryName" class="cloud-modal-title" placeholder="What's this group of tasks called?" maxlength="30" />
+        <p class="swatch-label">Pick a color</p>
+        <div class="swatch-row" id="swatchRow"></div>
+        <button type="submit" class="primary-btn">Send it up</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SETTINGS / THEMES MODAL -->
+  <div class="modal-overlay" id="settingsOverlay" hidden>
+    <div class="modal settings-modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="settingsClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <h3 class="small-modal-title">Settings</h3>
+
+      <p class="swatch-label">Sky themes — unlock more by leveling up</p>
+      <div class="theme-grid" id="themeGrid"></div>
+
+      <div class="settings-footer">
+        <label class="calm-toggle">
+          <input type="checkbox" id="calmModeToggle" />
+          <span>Calm mode <small>(fewer animations &amp; confetti)</small></span>
+        </label>
+        <button class="ghost-btn danger" id="resetBtn">Reset all progress</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- toast / celebration layer -->
+  <div class="toast-layer" id="toastLayer" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
