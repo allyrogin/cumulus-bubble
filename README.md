@@ -1,86 +1,96 @@
-# Cumulus Bubble — floating task bubble for macOS
+# Cumulus Bubble
 
-A small circle that floats on top of every app on your Mac. Click it to
-pop open the full Cumulus task app in a small window; click again (or
-click the bubble) to close it. Drag the bubble anywhere. It automatically
-hides itself whenever a lockdown/testing app (Bluebook, Respondus, etc.)
-is running.
+A floating task bubble for macOS. A small cloud icon sits on top of every
+app on your screen — click it to open a full task manager in a compact
+window, click again to close it. Tasks are organized into visual "clouds"
+instead of a flat list, with XP, streaks, and levels built in to make
+finishing things feel rewarding.
 
-**Important:** this is a separate app from the Chrome extension you
-installed earlier. It has its own task list — they don't sync. Easiest
-is to just pick one as your main way of using Cumulus (the bubble works
-everywhere, not only in new browser tabs, so that's probably the better
-default going forward).
+Built with Swift and AppKit. No installation from an app store, no
+account, no network requests except loading two Google Fonts. Everything
+is stored locally on your machine.
+
+*Requires macOS.*
 
 ## One-time setup
 
-1. **Check you have the Swift compiler.** Open Terminal and run:
-   ```
-   xcode-select -p
-   ```
-   If that prints a path, you're set. If it errors, run:
-   ```
-   xcode-select --install
-   ```
-   and click through the installer (this installs Apple's free Command
-   Line Tools — no full Xcode needed, takes a few minutes).
+**1. Check you have the Swift compiler.**
 
-2. **Build it.** In Terminal:
-   ```
-   cd path/to/bubble-app
-   chmod +x build.sh run.sh
-   ./build.sh
-   ```
-   This compiles `main.swift` into an app called `CumulusBubble` sitting
-   right next to it.
+Open Terminal and run:
+```
+xcode-select -p
+```
+If that prints a path, you're set. If it errors instead, run:
+```
+xcode-select --install
+```
+and follow the prompts. This installs Apple's free Command Line Tools —
+no full Xcode install required, and it only takes a few minutes.
 
-3. **Run it.**
-   ```
-   ./run.sh
-   ```
-   You should see a small dark circle with a cloud on it appear in the
-   top-right corner of your screen.
+**2. Build it.**
+
+```
+cd path/to/bubble-app
+chmod +x build.sh run.sh
+./build.sh
+```
+
+This compiles `main.swift` into a binary called `CumulusBubble` in the
+same folder.
+
+**3. Run it.**
+
+```
+./run.sh
+```
+
+A small dark circle with a cloud icon appears in the top-right corner of
+the screen.
 
 ## Using it
 
-- **Click** the bubble → the full Cumulus app opens in a small window
-  right below it.
-- **Click again** (either the bubble or click it while open) → closes
-  with a little fade.
-- **Drag** the bubble anywhere on screen — it remembers wherever you
-  drop it for that session.
-- **Right-click** the bubble → **Quit Cumulus Bubble** to shut it down
-  completely.
-- It stays up across virtual desktops/Spaces so you don't lose it when
-  you swipe between apps.
+- **Click** the bubble to open the task manager in a small window.
+- **Click again** (the bubble, or the open window) to close it.
+- **Drag** the bubble anywhere on screen — it stays wherever you drop it.
+- **Right-click** the bubble for a Quit option.
+- The bubble stays visible across virtual desktops/Spaces.
 
-## The lockdown-app watcher
+Inside the app: drop loose thoughts into the Brain Dump, organize tasks
+into color-coded clouds, mark due dates and priority, and check things
+off to earn XP. Leveling up unlocks new color themes for the sky
+background. A streak counter tracks consecutive days of completed tasks,
+with one automatic "freeze" to forgive a single missed day.
 
-Every 3 seconds it checks the names of your running apps against a
-list of known testing/lockdown software. If it finds a match, the
-bubble (and popup, if open) disappear immediately and stay hidden
-until that app quits.
+## Automatic lockdown detection
 
-Current watchlist (edit the `lockdownKeywords` array near the top of
-`main.swift` and re-run `./build.sh` to add more):
-- Bluebook
-- Respondus LockDown Browser
-- Honorlock
-- Proctorio / ProctorU
-- Examity
-- ExamSoft
-- Safe Exam Browser
-- SecureTest
+The app checks the names of currently running applications every few
+seconds. If it detects a known exam lockdown or proctoring tool, the
+bubble (and its window, if open) hide automatically until that
+application closes.
 
-If your school uses something else, send me the app's name and I can
-add it — or just add a lowercase snippet of its name to that list
-yourself.
+<details>
+<summary>Current watchlist / how to extend it</summary>
 
-## Auto-start when you log in (optional)
+Matching is a simple case-insensitive substring check against each
+running app's name and bundle identifier. Current list: Bluebook,
+Respondus LockDown Browser, Honorlock, Proctorio, ProctorU, Examity,
+ExamSoft, Safe Exam Browser, SecureTest.
 
-If you want the bubble running automatically every time you log into
-your Mac, create a file at
-`~/Library/LaunchAgents/com.cumulus.bubble.plist` with:
+To add more, edit the `lockdownKeywords` array near the top of
+`main.swift` and run `./build.sh` again. Pull requests adding
+additional known tools are welcome.
+
+</details>
+
+## Where data is stored
+
+`~/Library/Application Support/CumulusBubble/data.json` — plain JSON,
+readable and easy to back up manually.
+
+<details>
+<summary>Auto-start at login (optional)</summary>
+
+Create a file at `~/Library/LaunchAgents/com.cumulus.bubble.plist`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -98,31 +108,36 @@ your Mac, create a file at
 </plist>
 ```
 
-Replace `/full/path/to/bubble-app/run.sh` with the real path (run `pwd`
-in the bubble-app folder to get it). Then load it with:
+Replace the path with the actual location of `run.sh` (run `pwd` inside
+the project folder to get it), then load it:
+
 ```
 launchctl load ~/Library/LaunchAgents/com.cumulus.bubble.plist
 ```
-To stop it auto-starting later: `launchctl unload` that same file.
 
-## Where your data lives
+To disable auto-start later: `launchctl unload` the same file.
 
-`~/Library/Application Support/CumulusBubble/data.json` — plain JSON,
-easy to peek at or back up by hand if you're ever curious.
+</details>
 
 ## License
 
-GPLv3 — see the `LICENSE` file. Anyone can use, run, and modify this
-code, but if they distribute a modified version, it has to stay open
-source under the same license too.
+GPLv3 — see `LICENSE`. This code can be freely used, run, and modified;
+any distributed modified version must remain open source under the same
+license.
 
 ## Known limitations
 
-- Separate task data from the Chrome extension (explained above).
-- The watchlist is name-based — it can't detect a lockdown tool it
-  doesn't know the name of. It's a helpful backup, not a guarantee.
-- Positioning assumes your main display; with multiple monitors the
-  bubble always starts on the primary one.
-- This is unsigned code compiled on your own machine — totally normal
-  for a personal tool like this, but if macOS ever throws a Gatekeeper
-  warning, right-click `CumulusBubble` → **Open** once to clear it.
+- This is unsigned, locally compiled code — completely normal for a
+  personal/open-source tool distributed outside the App Store, but
+  macOS may show a Gatekeeper warning on first run. Right-click
+  `CumulusBubble` → **Open** once to clear it.
+- The lockdown-app watchlist is name-based. It can only detect software
+  it already knows the name of — it's a helpful safeguard, not a
+  guarantee.
+- Task data does not sync with any other version of this project (e.g.
+  a browser-extension build); each is a separate, independent store.
+
+## Contributing
+
+Issues and pull requests are welcome — particularly additions to the
+lockdown-tool watchlist or bug reports.
