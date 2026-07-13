@@ -24,7 +24,7 @@ If that prints a path, you're set. If it errors instead, run:
 ```
 xcode-select --install
 ```
-and follow the prompts. This installs Apple's free Command Line Tools —
+and follow the prompts. This installs Apple's free Command Line Tools,
 no full Xcode install required, and it only takes a few minutes.
 
 **2. Build it.**
@@ -84,7 +84,7 @@ additional known tools are welcome.
 
 ## Where data is stored
 
-`~/Library/Application Support/CumulusBubble/data.json` — plain JSON,
+`~/Library/Application Support/CumulusBubble/data.json`, plain JSON,
 readable and easy to back up manually.
 
 <details>
