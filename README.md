@@ -1,7 +1,7 @@
 # Cumulus Bubble
 
 A floating task bubble for macOS. A small cloud icon sits on top of every
-app on your screen — click it to open a full task manager in a compact
+app on your screen, click it to open a full task manager in a compact
 window, click again to close it. Tasks are organized into visual "clouds"
 instead of a flat list, with XP, streaks, and levels built in to make
 finishing things feel rewarding.
@@ -127,7 +127,7 @@ license.
 
 ## Known limitations
 
-- This is unsigned, locally compiled code — completely normal for a
+- This is unsigned, locally compiled code, completely normal for a
   personal/open-source tool distributed outside the App Store, but
   macOS may show a Gatekeeper warning on first run. Right-click
   `CumulusBubble` → **Open** once to clear it.
